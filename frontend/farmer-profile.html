@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Farmers - Kisan Setu</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Tiro+Devanagari+Hindi&family=Yatra+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/logo.png" alt="Logo" class="logo-img">
+            <h2>Kisan Setu</h2>
+        </div>
+        <ul class="nav-links"></ul>
+        <div class="hamburger"><i class='bx bx-menu'></i></div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                <li><a href="contracts.html"><i class='bx bxs-file-blank'></i> Contracts</a></li>
+                <li><a href="monitoring.html"><i class='bx bx-map-alt'></i> Monitoring</a></li>
+                <li><a href="farmer-profile.html" class="active"><i class='bx bxs-user-detail'></i> Hire Farmers</a></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <h2 class="yatra-font">Verified Farmers Directory</h2>
+            <div id="farmersList" class="features-grid" style="margin-top: 20px;">
+                <!-- Farmers injected here -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal" style="overflow-y: auto;">
+        <div class="modal-content" style="text-align: left; max-width: 600px; max-height: 90vh; overflow-y: auto; margin: 20px auto;">
+            <span class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">&times;</span>
+            
+            <!-- HEADER INFO -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width:100px; height:100px; border-radius:50%; background:#ccc; margin:0 auto 15px; overflow:hidden;">
+                    <img src="https://ui-avatars.com/api/?name=F&background=random" id="pImg" style="width:100%;" alt="Farmer">
+                </div>
+                <h2 id="pName" style="margin-bottom: 5px;">Farmer Name</h2>
+                <p style="color:var(--accent-color); font-weight:bold;"><i class='bx bx-map'></i> <span id="pLocation">Location</span></p>
+                
+                <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+                    <div style="background:var(--bg-color); padding:10px 20px; border-radius:8px; display:inline-block;">
+                        <h4><i class='bx bxs-star' style="color:var(--secondary-color);"></i> <span id="pScore">90</span></h4>
+                        <small>Trust Score</small>
+                    </div>
+                    <div style="background:var(--bg-color); padding:10px 20px; border-radius:8px; display:inline-block;">
+                        <h4 id="pExp">5 Yrs</h4>
+                        <small>Experience</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. BEST FIT (HIGHLIGHT SECTION) -->
+            <div style="background: linear-gradient(135deg, #e9f0e6 0%, #d4e0ce 100%); border-left: 5px solid var(--accent-color); padding: 15px; border-radius: var(--radius); margin-bottom: 20px;">
+                <h4 style="color: var(--primary-color);"><i class='bx bx-target-lock'></i> Best Fit Profile</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; font-size: 0.9rem;">
+                    <div><strong>Scale:</strong> Small/Medium Farms</div>
+                    <div><strong>Crops:</strong> Cotton, Wheat</div>
+                    <div><strong>Type:</strong> Sharecropping</div>
+                    <div style="color: #c62828;"><strong>Warning:</strong> Not seeking daily wage</div>
+                </div>
+            </div>
+
+            <!-- 1. SPECIALIZATION -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;"><i class='bx bx-seed'></i> Specialization</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="background: var(--secondary-color); color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">Primary: <span id="pSkillsPrimary">Cotton</span></span>
+                    <span style="background: var(--bg-color); color: var(--text-secondary); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem;">Sec: Wheat</span>
+                    <span style="background: var(--bg-color); color: var(--text-secondary); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem;">Sec: Rice</span>
+                    <span style="border: 1px solid #ccc; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem;"><i class='bx bx-sun'></i> Best Season: Kharif</span>
+                </div>
+            </div>
+
+            <!-- 2. SKILLS & WORK TYPE -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;"><i class='bx bx-wrench'></i> Core Skills</h4>
+                <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9rem;">
+                    <li><i class='bx bx-check-circle' style="color:var(--accent-color);"></i> Irrigation Mgmt</li>
+                    <li><i class='bx bx-check-circle' style="color:var(--accent-color);"></i> Pesticide Spraying</li>
+                    <li><i class='bx bx-check-circle' style="color:var(--accent-color);"></i> Crop Harvesting</li>
+                    <li><i class='bx bx-check-circle' style="color:var(--accent-color);"></i> Machinery Handling</li>
+                </ul>
+            </div>
+
+            <!-- 3. PERFORMANCE METRICS -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;"><i class='bx bx-bar-chart-alt-2'></i> Performance Metrics</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center;">
+                    <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px;">
+                        <h3 style="color: var(--secondary-color);">95%</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">Success Rate</p>
+                    </div>
+                    <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px;">
+                        <h3 style="color: var(--secondary-color);">22 q/ac</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">Avg Yield</p>
+                    </div>
+                    <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px;">
+                        <h3 style="color: var(--secondary-color);">14</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">Contracts Completed</p>
+                    </div>
+                    <div style="border: 1px solid #eee; padding: 10px; border-radius: 8px;">
+                        <h3 style="color: var(--secondary-color);">98%</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">On-Time Work</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. AVAILABILITY -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;"><i class='bx bx-calendar'></i> Availability</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 5px;"><strong>Starts:</strong> <span style="color:var(--accent-color); font-weight:bold;">Immediate / This Month</span></p>
+                <p style="font-size: 0.9rem;"><strong>Prefers:</strong> Full season contracts over ad-hoc tasks.</p>
+            </div>
+
+            <!-- 6. REVIEWS -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;"><i class='bx bx-message-rounded-dots'></i> Recent Reviews</h4>
+                <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem; font-style: italic; color: #555;">
+                    "Very reliable farmer. Excellent irrigation knowledge and always on time." - <span style="font-weight:bold; font-style:normal;">Suresh K.</span>
+                </div>
+                <div style="background: #f9f9f9; padding: 10px; border-radius: 8px; font-size: 0.85rem; font-style: italic; color: #555;">
+                    "Managed my 15-acre plot perfectly all season. High yield!" - <span style="font-weight:bold; font-style:normal;">Anil S.</span>
+                </div>
+            </div>
+            
+            <button class="btn-primary" style="margin-top:10px; width:100%; padding: 15px; font-size: 1.1rem;" onclick="sendRequest()">Send Hire Request</button>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/farmer-profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring - Kisan Setu</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Tiro+Devanagari+Hindi&family=Yatra+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        .monitoring-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .m-title h2 { margin-bottom: 0; }
+        .m-title p { color: var(--text-secondary); font-size: 0.9rem; }
+        .m-indicators { display: flex; gap: 15px; align-items: center; }
+        .chip { background: var(--card-bg); border: 1px solid #ddd; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; box-shadow: var(--shadow-subtle); }
+        .dot { height: 10px; width: 10px; background-color: #4caf50; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
+        
+        .advisory-banner { background: linear-gradient(135deg, #e9f0e6 0%, #d4e0ce 100%); border-left: 5px solid var(--accent-color); padding: 15px 20px; border-radius: var(--radius); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .advisory-tags span { display: inline-block; background: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 5px; color: var(--text-secondary); font-weight: bold; border: 1px solid #ccc; }
+        
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .qa-card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-subtle); text-align: center; cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
+        .qa-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--secondary-color); }
+        .qa-card i { font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px; }
+        
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        @media(max-width: 900px) { .main-grid { grid-template-columns: 1fr; } .monitoring-header { flex-direction: column; align-items: flex-start; gap: 10px; } }
+        
+        .photo-preview { width: 100%; height: 150px; background: #f9f9f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-top: 10px; overflow: hidden; border: 2px dashed #ccc; cursor: pointer; position: relative;}
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; display: none;}
+        .photo-preview span { color: #888; font-size: 0.9rem; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .tab { cursor: pointer; font-weight: bold; color: var(--text-secondary); padding: 5px 10px; }
+        .tab.active { color: var(--primary-color); border-bottom: 3px solid var(--secondary-color); }
+        
+        .log-item { display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid #eee; }
+        .log-icon { width: 50px; height: 50px; background: var(--bg-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent-color); overflow: hidden; flex-shrink: 0;}
+        .log-icon img { height: 100%; width: 100%; object-fit: cover; }
+        .log-content { flex: 1; }
+        .log-item:last-child { border-bottom: none; }
+        
+        .progress-bar-container { width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top: 5px; margin-bottom: 15px; }
+        .progress-bar { height: 100%; border-radius: 4px; }
+        
+        .contract-list-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; align-items: center; }
+        .contract-list-item:last-child { border-bottom: none; }
+        .badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
+        .badge.active { background: #e8f5e9; color: #2e7d32; }
+        
+        .mic-btn { display: inline-flex; align-items: center; justify-content: center; background: var(--bg-color); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; border: 1px solid #ccc; color: var(--accent-color); font-size: 1.2rem; transition: var(--transition); }
+        .mic-btn.listening { background: #fee; color: red; border-color: red; animation: pulse 1s infinite; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/logo.png" alt="Logo" class="logo-img">
+            <h2>Kisan Setu</h2>
+        </div>
+        <ul class="nav-links"></ul>
+        <div class="hamburger"><i class='bx bx-menu'></i></div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                <li><a href="contracts.html"><i class='bx bxs-file-blank'></i> Contracts</a></li>
+                <li><a href="monitoring.html" class="active"><i class='bx bx-map-alt'></i> Monitoring</a></li>
+                <li id="farmersLink" style="display:none;"><a href="farmer-profile.html"><i class='bx bxs-user-detail'></i> Hire Farmers</a></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <!-- PAGE HEADER -->
+            <div class="monitoring-header">
+                <div class="m-title">
+                    <h2 class="yatra-font">GPS & Work Monitoring</h2>
+                    <p>Saraswati Farm · Plot A · Cotton</p>
+                </div>
+                <div class="m-indicators">
+                    <div class="chip"><i class='bx bx-sun' style="color:var(--secondary-color);"></i> ⛅ 28°C</div>
+                    <div class="chip"><span class="dot"></span> GPS Active</div>
+                </div>
+            </div>
+
+            <!-- FARMER VIEW -->
+            <div id="farmerView" style="display:none;">
+                <!-- ADVISORY BANNER -->
+                <div class="advisory-banner">
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 5px;"><i class='bx bx-info-circle'></i> Ideal conditions for Irrigation</h4>
+                        <p style="font-size: 0.9rem; color: var(--text-primary);">No rainfall expected for the next 4 days. Soil moisture is currently low.</p>
+                    </div>
+                    <div class="advisory-tags">
+                        <span>🌡️ 28°C</span>
+                        <span>🌱 Flowering Stage</span>
+                        <span>💧 Action Recommended</span>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS -->
+                <div class="quick-actions">
+                    <div class="qa-card" onclick="document.getElementById('logPhotoInput').click()">
+                        <i class='bx bx-camera'></i>
+                        <h4>Photo Log</h4>
+                        <p style="font-size:0.8rem;">Upload area image</p>
+                    </div>
+                    <div class="qa-card" onclick="toggleVoiceInputQuick()">
+                        <i class='bx bx-microphone' id="quickMicIcon"></i>
+                        <h4>Voice Note</h4>
+                        <p style="font-size:0.8rem;">Speak work updates</p>
+                    </div>
+                    <div class="qa-card" onclick="document.getElementById('logNotes').focus()">
+                        <i class='bx bx-error'></i>
+                        <h4>Report Problem</h4>
+                        <p style="font-size:0.8rem;">Pest/Weather issue</p>
+                    </div>
+                    <div class="qa-card" onclick="alert('Viewing crop health details.')">
+                        <i class='bx bx-leaf'></i>
+                        <h4>Crop Health</h4>
+                        <p style="font-size:0.8rem;">Monitor status</p>
+                    </div>
+                </div>
+
+                <!-- MAIN CONTENT -->
+                <div class="main-grid">
+                    
+                    <!-- LEFT COLUMN -->
+                    <div class="left-col">
+                        <div class="content-panel" id="logFormPanel">
+                            <h3>Log Daily Work</h3>
+                            
+                            <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px;">
+                                <select id="farmSelector" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                                    <option>Saraswati Farm - Cotton</option>
+                                    <option>Green Acres - Wheat</option>
+                                </select>
+                                <select id="langSelector" style="width:120px; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                                    <option>English</option>
+                                    <option>हिंदी</option>
+                                    <option>भोजपुरी</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <button class="btn-outline" onclick="autoDetectGPS()"><i class='bx bx-target-lock'></i> Auto Detect Location</button>
+                                <span id="gpsReadout" style="font-size:0.85rem; color:#666;"><i class='bx bx-map-pin'></i> Lat: 23.02, Lng: 72.57</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Photo Evidence <span style="font-weight:normal; font-size:0.8rem; color:#666;">(Required for milestone proof)</span></label>
+                                <input type="file" id="logPhotoInput" accept="image/*" style="display:none;" onchange="previewPhoto(event)">
+                                <div class="photo-preview" onclick="document.getElementById('logPhotoInput').click()">
+                                    <span id="previewText"><i class='bx bx-camera'></i> Click to Capture / Upload Photo</span>
+                                    <img id="previewImage" src="">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="position:relative;">
+                                <label>Work Description / Notes</label>
+                                <div style="display:flex; gap:10px; align-items:flex-start;">
+                                    <textarea id="logNotes" rows="3" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;" placeholder="e.g. Completed irrigation for Plot A..."></textarea>
+                                    <div class="mic-btn" id="micBtn" onclick="toggleVoiceInput()"><i class='bx bx-microphone'></i></div>
+                                </div>
+                            </div>
+                            
+                            <div style="display:flex; gap:10px; margin-top:20px;">
+                                <button class="btn-primary btn-full" onclick="submitWorkLog()"><i class='bx bx-check'></i> Capture GPS & Submit Log</button>
+                                <button class="btn-outline btn-full" style="border-color:red; color:red;" onclick="reportProblem()">Report Problem Instead</button>
+                            </div>
+                        </div>
+
+                        <!-- WORK LOGS -->
+                        <div class="content-panel">
+                            <h3>Recent Work Logs</h3>
+                            <div class="tabs">
+                                <div class="tab active">All</div>
+                                <div class="tab">Today</div>
+                                <div class="tab">This Week</div>
+                            </div>
+                            <div id="dummyLogsList">
+                                <div class="log-item">
+                                    <div class="log-icon"><img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=150&q=80" alt="farm"></div>
+                                    <div class="log-content">
+                                        <h5 style="margin-bottom:3px;">Irrigation Completed</h5>
+                                        <span class="badge" style="background:#e3f2fd; color:#1565c0; margin-bottom:5px; display:inline-block;">Irrigation</span>
+                                        <p style="font-size:0.85rem; color:#666;"><i class='bx bx-time'></i> Today at 08:30 AM | <i class='bx bx-map'></i> 23.0225, 72.5714</p>
+                                    </div>
+                                </div>
+                                <div class="log-item">
+                                    <div class="log-icon"><i class='bx bx-leaf'></i></div>
+                                    <div class="log-content">
+                                        <h5 style="margin-bottom:3px;">Checked Soil Moisture</h5>
+                                        <span class="badge" style="background:#f1f8e9; color:#33691e; margin-bottom:5px; display:inline-block;">Inspection</span>
+                                        <p style="font-size:0.85rem; color:#666;"><i class='bx bx-time'></i> Yesterday at 05:15 PM | <i class='bx bx-map'></i> 23.0228, 72.5720</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- RIGHT COLUMN -->
+                    <div class="right-col">
+                        <!-- STATS CARD -->
+                        <div class="content-panel" style="background:var(--primary-color); color:white;">
+                            <h3 style="color:var(--secondary-color); margin-bottom:15px;">Monitoring Stats</h3>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:10px;">
+                                <div>
+                                    <h2 style="font-size:2rem; font-family:var(--font-heading);">12</h2>
+                                    <p style="font-size:0.8rem; opacity:0.8;">Logs Submitted</p>
+                                </div>
+                                <div>
+                                    <h2 style="font-size:2rem; font-family:var(--font-heading);">15</h2>
+                                    <p style="font-size:0.8rem; opacity:0.8;">Acres Covered</p>
+                                </div>
+                                <div>
+                                    <h2 style="font-size:2rem; font-family:var(--font-heading);">8</h2>
+                                    <p style="font-size:0.8rem; opacity:0.8;">Photos Taken</p>
+                                </div>
+                                <div>
+                                    <h2 style="font-size:2rem; font-family:var(--font-heading);">0</h2>
+                                    <p style="font-size:0.8rem; opacity:0.8;">Issues</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CROP HEALTH -->
+                        <div class="content-panel">
+                            <h3>Crop Health Tracking</h3>
+                            <div style="margin-top:15px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                                    <strong>Overall Growth</strong> <span>75%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 75%; background-color: var(--accent-color);"></div>
+                                </div>
+                                
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                                    <strong>Moisture Level</strong> <span>40%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 40%; background-color: #ffb300;"></div>
+                                </div>
+
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                                    <strong>Pest Resistance</strong> <span>90%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 90%; background-color: var(--accent-color);"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONTRACTS CARD -->
+                        <div class="content-panel">
+                            <h3>Active Contracts</h3>
+                            <div style="margin-top:10px;">
+                                <div class="contract-list-item">
+                                    <div>
+                                        <strong>Cotton Share</strong>
+                                        <p style="font-size:0.8rem; color:#666;">Ramesh Patel · 50% split</p>
+                                    </div>
+                                    <span class="badge active">ACTIVE</span>
+                                </div>
+                                <div class="contract-list-item">
+                                    <div>
+                                        <strong>Wheat Fixed Pay</strong>
+                                        <p style="font-size:0.8rem; color:#666;">ITC Agri · ₹15,000</p>
+                                    </div>
+                                    <span class="badge active">ACTIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LANDOWNER VIEW-->
+            <div id="landownerView" style="display: none;">
+                <!-- 2. SUMMARY STATS (Moved to top like KPI cards) -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;">
+                    <div class="content-panel" style="background:var(--primary-color); color:white; padding:15px;">
+                        <p style="font-size:0.8rem; opacity:0.8; margin-bottom:5px;">Total Logs</p>
+                        <h2 style="font-size:2rem; font-family:var(--font-heading); color:var(--secondary-color);">24</h2>
+                    </div>
+                    <div class="content-panel" style="background:#e8f5e9; padding:15px; color:#2e7d32;">
+                        <p style="font-size:0.8rem; margin-bottom:5px;">Days Worked</p>
+                        <h2 style="font-size:2rem; font-family:var(--font-heading);">18/30</h2>
+                    </div>
+                    <div class="content-panel" style="background:var(--bg-color); padding:15px; color:var(--primary-color);">
+                        <p style="font-size:0.8rem; margin-bottom:5px;">Tasks Completed</p>
+                        <h2 style="font-size:2rem; font-family:var(--font-heading);">45</h2>
+                    </div>
+                    <div class="content-panel" style="background:#ffebee; padding:15px; color:#c62828;">
+                        <p style="font-size:0.8rem; margin-bottom:5px;">Issues Reported</p>
+                        <h2 style="font-size:2rem; font-family:var(--font-heading);">2</h2>
+                    </div>
+                </div>
+
+                <div class="main-grid">
+                    <!-- LEFT COL -->
+                    <div class="left-col">
+                        <!-- 1. ACTIVITY TIMELINE -->
+                        <div class="content-panel">
+                            <h3>Farm Activity Timeline</h3>
+                            <div style="margin-top:15px;">
+                                <div class="log-item">
+                                    <div class="log-icon"><img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=150&q=80" alt="field"></div>
+                                    <div class="log-content">
+                                        <h5 style="margin-bottom:3px;">Irrigation Completed</h5>
+                                        <span class="badge" style="background:#e3f2fd; color:#1565c0; margin-bottom:5px; display:inline-block;">Worker: Ramesh P.</span>
+                                        <p style="font-size:0.85rem; color:#666;"><i class='bx bx-time'></i> Today at 08:30 AM | <i class='bx bx-map-pin' style="color:var(--accent-color);"></i> 23.0225, 72.5714</p>
+                                        <p style="font-size:0.85rem; margin-top:5px; font-weight:500;">"Watering complete for the Northern plot."</p>
+                                    </div>
+                                </div>
+                                <div class="log-item">
+                                    <div class="log-icon"><img src="https://images.unsplash.com/photo-1592982537447-6f2ecddbb3f4?auto=format&fit=crop&w=150&q=80" alt="crop"></div>
+                                    <div class="log-content">
+                                        <h5 style="margin-bottom:3px;">Pesticide Applied</h5>
+                                        <span class="badge" style="background:#e3f2fd; color:#1565c0; margin-bottom:5px; display:inline-block;">Worker: Ramesh P.</span>
+                                        <p style="font-size:0.85rem; color:#666;"><i class='bx bx-time'></i> Yesterday at 04:15 PM | <i class='bx bx-map-pin' style="color:var(--accent-color);"></i> 23.0228, 72.5720</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. PHOTO PROOF GRID -->
+                        <div class="content-panel" style="margin-top:20px;">
+                            <h3>Recent Photo Proofs</h3>
+                            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-top:15px;">
+                                <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=300&q=80" style="width:100%; border-radius:8px; cursor:pointer;" onclick="window.open(this.src)">
+                                <img src="https://images.unsplash.com/photo-1592982537447-6f2ecddbb3f4?auto=format&fit=crop&w=300&q=80" style="width:100%; border-radius:8px; cursor:pointer;" onclick="window.open(this.src)">
+                                <img src="https://images.unsplash.com/photo-1595841696677-6489ff3f8cd1?auto=format&fit=crop&w=300&q=80" style="width:100%; border-radius:8px; cursor:pointer;" onclick="window.open(this.src)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COL -->
+                    <div class="right-col">
+                        <!-- 4. ISSUES SECTION -->
+                        <div class="content-panel" style="border-left:5px solid #c62828;">
+                            <h3 style="color:#c62828;"><i class='bx bx-error-circle'></i> Reported Issues</h3>
+                            <div style="background:#ffebee; padding:10px; border-radius:8px; margin-top:10px;">
+                                <h5 style="color:#c62828; margin-bottom:3px;">Pest Sighting</h5>
+                                <p style="font-size:0.8rem; color:#888;"><i class='bx bx-time'></i> 2 days ago</p>
+                                <p style="font-size:0.85rem; margin-top:5px; color:#333;">"Found some pest activity near the fences. Needs spraying soon."</p>
+                                <button class="btn-outline" style="width:100%; margin-top:10px; padding:5px; font-size:0.8rem; border-color:#c62828; color:#c62828;" onclick="alert('Acknowledged')">Acknowledge</button>
+                            </div>
+                        </div>
+
+                        <!-- 5. PERFORMANCE INSIGHTS -->
+                        <div class="content-panel" style="margin-top:20px;">
+                            <h3>Performance Insights</h3>
+                            <div style="margin-top:15px;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:5px;">
+                                    <strong>Work Consistency</strong> <span style="color:var(--accent-color); font-weight:bold;">Excellent</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 90%; background-color: var(--accent-color);"></div>
+                                </div>
+                                <p style="font-size:0.8rem; color:#666; margin-top:5px;">Logged work 18 out of last 20 scheduled days.</p>
+
+                                <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:10px; border-radius:8px;">
+                                    <div>
+                                        <strong style="color:var(--primary-color);">Reliability Score</strong>
+                                    </div>
+                                    <h3 style="color:var(--secondary-color);">95/100</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/monitoring.js"></script>
+</body>
+</html>

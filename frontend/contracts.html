@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contracts - Kisan Setu</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Tiro+Devanagari+Hindi&family=Yatra+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .split-bar-container { width: 100%; height: 30px; background: #eee; border-radius: 15px; overflow: hidden; display: flex; margin-bottom: 10px; border: 1px solid #ccc; }
+        .split-landowner { background: var(--secondary-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; transition: width 0.3s; }
+        .split-farmer { background: var(--accent-color); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; transition: width 0.3s; }
+        .contract-detail-box { border: 1px solid var(--secondary-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+        /* Integrated New UI Styles */
+        .agreement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+        .status-tracker {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card-bg); padding: 20px 30px; border-radius: var(--radius);
+            box-shadow: var(--shadow-subtle); margin-bottom: 30px; position: relative;
+        }
+        .status-tracker::before {
+            content: ''; position: absolute; top: 50%; left: 50px; right: 50px;
+            height: 4px; background: #eee; z-index: 1; transform: translateY(-50%);
+        }
+        .status-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px; color: #ccc; }
+        .status-step .step-icon {
+            width: 40px; height: 40px; background: #eee; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; transition: var(--transition);
+        }
+        .status-step.active .step-icon { background: var(--secondary-color); color: white; box-shadow: 0 0 10px rgba(212, 160, 23, 0.4); }
+        .status-step.active { color: var(--text-primary); font-weight: bold; }
+        .status-step.completed .step-icon { background: var(--accent-color); color: white; }
+        .component-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow-subtle); margin-bottom: 25px; }
+        .card-title { font-family: var(--font-heading); color: var(--primary-color); margin-bottom: 20px; border-bottom: 2px solid var(--bg-color); padding-bottom: 10px; font-size: 1.5rem; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .share-control { background: var(--bg-color); padding: 15px; border-radius: var(--radius); margin-bottom: 15px; }
+        .share-inputs { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .share-control input[type="range"] { flex: 1; accent-color: var(--accent-color); }
+        .share-box { display: flex; align-items: center; background: white; padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; width: 80px; }
+        .share-box input { width: 100%; border: none; outline: none; text-align: right; font-weight: bold; padding: 0; margin: 0; }
+        .visual-split { height: 40px; border-radius: 20px; display: flex; overflow: hidden; margin: 20px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .visual-split .part-lo { background: var(--secondary-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.3s ease; }
+        .visual-split .part-fa { background: var(--accent-color); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9rem; transition: width 0.3s ease; }
+        .preview-text { font-size: 0.95rem; color: var(--text-secondary); text-align: center; margin-top: 10px; }
+        .preview-summary { display: flex; justify-content: space-between; background: var(--bg-color); padding: 15px; border-radius: var(--radius); margin-bottom: 15px; }
+        .document-preview {
+            background: #fff; padding: 30px; border: 1px solid #e0d8c8; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 4px; font-family: 'Times New Roman', serif; color: #333; max-height: 350px; overflow-y: auto;
+            background-image: repeating-linear-gradient(white, white 24px, #f4f0e6 25px); line-height: 25px;
+        }
+        .document-preview h3 { text-align: center; font-family: 'Times New Roman', serif; font-size: 1.4rem; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 20px; }
+        .document-preview p { margin-bottom: 15px; font-size: 1.05rem; }
+        .document-placeholder { color: #888; font-style: italic; }
+        .esign-ui { background: var(--bg-color); padding: 20px; border-radius: var(--radius); border: 1px dashed #ccc; }
+        .signature-type-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+        .signature-type-toggle label { cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+        .signature-canvas { width: 100%; height: 120px; background: white; border: 1px solid #ccc; border-radius: var(--radius); cursor: crosshair; }
+        .signature-text-input { width: 100%; padding: 15px; font-size: 2rem; font-family: 'Brush Script MT', cursive; border: 1px solid #ccc; border-radius: var(--radius); display: none; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px; padding: 8px 15px; background: #e8f5e9; color: #2e7d32;
+            border-radius: 20px; font-weight: bold; margin-top: 15px; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .status-badge.visible { opacity: 1; }
+        @media(max-width: 900px) { .agreement-grid { grid-template-columns: 1fr; } .status-tracker::before { display: none; } .status-tracker { flex-wrap: wrap; gap: 20px; justify-content: center; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/logo.png" alt="Logo" class="logo-img">
+            <h2>Kisan Setu</h2>
+        </div>
+        <ul class="nav-links"></ul>
+        <div class="hamburger"><i class='bx bx-menu'></i></div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+                <li><a href="contracts.html" class="active"><i class='bx bxs-file-blank'></i> Contracts</a></li>
+                <li><a href="monitoring.html"><i class='bx bx-map-alt'></i> Monitoring</a></li>
+                <li id="farmersLink" style="display:none;"><a href="farmer-profile.html"><i class='bx bxs-user-detail'></i> Hire Farmers</a></li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <h2 class="yatra-font">Agreements & Contracts</h2>
+            
+            <div id="createContractPanel" style="display:none; margin-bottom: 40px;">
+                <!-- SECTION 5: Status Tracker -->
+                <div class="status-tracker" id="statusTracker">
+                    <div class="status-step active" data-step="1">
+                        <div class="step-icon"><i class='bx bx-edit'></i></div>
+                        <span>Created</span>
+                    </div>
+                    <div class="status-step" data-step="2">
+                        <div class="step-icon"><i class='bx bx-time-five'></i></div>
+                        <span>Pending</span>
+                    </div>
+                    <div class="status-step" data-step="3">
+                        <div class="step-icon"><i class='bx bx-check-shield'></i></div>
+                        <span>Signed</span>
+                    </div>
+                    <div class="status-step" data-step="4">
+                        <div class="step-icon"><i class='bx bxs-leaf'></i></div>
+                        <span>Active</span>
+                    </div>
+                </div>
+
+                <div class="agreement-grid">
+                    <!-- Left Column -->
+                    <div>
+                        <!-- SECTION 1: Agreement Form -->
+                        <div class="component-card">
+                            <h3 class="card-title">Agreement Details</h3>
+                            <form id="createContractForm">
+                                <div class="form-group">
+                                    <label>Select Farm (Landowner)</label>
+                                    <select id="contractLand" required></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Select Farmer</label>
+                                    <select id="contractFarmer" required></select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Work Scope / Crop to be Grown</label>
+                                    <input type="text" id="contractScope" placeholder="E.g. Wheat farming and harvesting" required>
+                                </div>
+
+                                <div class="input-row">
+                                    <div class="form-group">
+                                        <label>Start Date</label>
+                                        <input type="date" id="contractStart" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>End Date</label>
+                                        <input type="date" id="contractEnd" required>
+                                    </div>
+                                </div>
+
+                                <div class="share-control">
+                                    <label>Crop Share Split (%)</label>
+                                    <div class="share-inputs">
+                                        <span style="font-size: 0.9rem; color: var(--secondary-color); font-weight: bold;">Landowner</span>
+                                        <input type="range" id="shareSlider" min="0" max="100" value="50">
+                                        <span style="font-size: 0.9rem; color: var(--accent-color); font-weight: bold;">Farmer</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                                        <div class="share-box">
+                                            <input type="number" id="loShareInput" value="50" min="0" max="100">%
+                                        </div>
+                                        <div class="share-box">
+                                            <input type="number" id="faShareInput" value="50" min="0" max="100">%
+                                        </div>
+                                    </div>
+                                    <p id="shareWarning" style="color: red; font-size: 0.8rem; display: none; margin-top: 5px;">Total must be 100%</p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div>
+                        <!-- SECTION 2: Visual Preview -->
+                        <div class="component-card">
+                            <h3 class="card-title">Agreement Summary</h3>
+                            <div class="preview-summary">
+                                <div>
+                                    <strong style="display:block; font-size:1.1rem; color: var(--primary-color);" id="pvParties">Landowner & Farmer</strong>
+                                    <span style="font-size:0.9rem; color:var(--text-secondary);" id="pvDuration">Duration: Not set</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <strong style="display:block; font-size:1.1rem; color: var(--accent-color);" id="pvCrop">Crop Scope</strong>
+                                    <span style="font-size:0.9rem; color:var(--text-secondary);" id="pvLocation">Selected Farm</span>
+                                </div>
+                            </div>
+
+                            <div class="visual-split">
+                                <div class="part-lo" id="barLo" style="width: 50%;">50%</div>
+                                <div class="part-fa" id="barFa" style="width: 50%;">50%</div>
+                            </div>
+                            <div class="preview-text">
+                                <i class='bx bxs-circle' style="color: var(--secondary-color);"></i> <span id="txtLo">Landowner gets 50%</span> &nbsp;&nbsp;
+                                <i class='bx bxs-circle' style="color: var(--accent-color);"></i> <span id="txtFa">Farmer gets 50%</span>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 3: Document Preview -->
+                        <div class="component-card">
+                            <h3 class="card-title">Document Preview</h3>
+                            <div class="document-preview" id="docPreview">
+                                <h3>Farming Agreement</h3>
+                                <p>This agreement is entered into on <strong id="docDate">[Date]</strong>, between <strong id="docLo" class="document-placeholder">the Landowner</strong> and <strong id="docFa" class="document-placeholder">the Farmer</strong>.</p>
+                                
+                                <p><strong>1. Property & Scope:</strong><br>
+                                The Landowner agrees to allow the Farmer to cultivate <strong id="docCrop" class="document-placeholder">[Scope/Crop]</strong> on the agricultural land located at <strong id="docLocation" class="document-placeholder">[Farm Name]</strong>.</p>
+                                
+                                <p><strong>2. Duration:</strong><br>
+                                This agreement shall commence on <strong id="docStart" class="document-placeholder">[Start Date]</strong> and remain valid until <strong id="docEnd" class="document-placeholder">[End Date]</strong>.</p>
+                                
+                                <p><strong>3. Crop Sharing Ratio:</strong><br>
+                                The total harvest yield shall be divided between the parties in the following non-monetary ratio:
+                                <br>• Landowner Share: <strong id="docRatioLo">50%</strong>
+                                <br>• Farmer Share: <strong id="docRatioFa">50%</strong></p>
+                                
+                                <p><strong>4. Responsibilities:</strong><br>
+                                The Farmer agrees to utilize best farming practices. Both parties mutually agree to resolve any yield disputes through the Kisan Setu transparent dispute resolution model.</p>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 4: Fake eSign UI -->
+                        <div class="component-card" id="esignSection">
+                            <h3 class="card-title">Electronic Signature</h3>
+                            
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                    <input type="checkbox" id="termsCheck" style="width:auto;" required form="createContractForm"> 
+                                    <span>I have read and agree to all terms and conditions</span>
+                                </label>
+                            </div>
+
+                            <div class="esign-ui">
+                                <div class="signature-type-toggle">
+                                    <label><input type="radio" name="sigType" value="draw" checked> Draw Signature</label>
+                                    <label><input type="radio" name="sigType" value="type"> Type Signature</label>
+                                </div>
+                                
+                                <canvas id="sigCanvas" class="signature-canvas"></canvas>
+                                <input type="text" id="sigInput" class="signature-text-input" placeholder="Type your name here...">
+                                <a href="javascript:void(0)" id="clearSig" style="font-size:0.8rem; color:red; display:inline-block; margin-top:5px;">Clear Signature</a>
+                            </div>
+
+                            <div style="display:flex; gap:15px; margin-top: 20px;">
+                                <button type="submit" class="btn-secondary" style="flex:1;" id="signBtn" form="createContractForm">Sign & Create Agreement</button>
+                            </div>
+
+                            <div id="statusBadge" class="status-badge">
+                                <i class='bx bx-check-circle' style="font-size:1.5rem;"></i>
+                                <span>Signed on <span id="signTime"></span></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-panel">
+                <h3>My Contracts</h3>
+                <div id="contractListContainer" class="features-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Contract Modal -->
+    <div id="contractModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-btn" onclick="document.getElementById('contractModal').style.display='none'">&times;</span>
+            <h2>Agreement Details</h2>
+            <div id="contractPrintArea" style="background: white; padding: 20px;">
+                <div class="contract-detail-box">
+                    <h3 id="cFarmName" style="border-bottom:1px solid #ccc; padding-bottom:5px;">Farm Name</h3>
+                    <p><strong>Parties:</strong> <span id="cParties">...</span></p>
+                    <p><strong>Duration:</strong> <span id="cDuration">...</span></p>
+                    <p><strong>Work Scope:</strong> <span id="cScope">...</span></p>
+                    
+                    <div style="margin-top:15px;">
+                        <strong>Crop Share Split:</strong>
+                        <div class="split-bar-container" style="margin-top:5px;">
+                            <div id="cLoSplitBar" class="split-landowner" style="width: 50%;">50%</div>
+                            <div id="cFSplitBar" class="split-farmer" style="width: 50%;">50%</div>
+                        </div>
+                    </div>
+                    <p><strong>Status:</strong> <span id="cStatusLabel" style="font-weight:bold; color:var(--accent-color);">ACTIVE</span></p>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;" id="actionButtonsContainer"></div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/contracts.js"></script>
+</body>
+</html>

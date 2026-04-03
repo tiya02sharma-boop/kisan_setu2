@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kisan Setu - From Field to Trust</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Tiro+Devanagari+Hindi&family=Yatra+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+            <img src="img/logo.png" alt="Logo" class="logo-img">
+            <div>
+                <h2>Kisan Setu</h2>
+                <span>खेत से विश्वास तक</span>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><button class="btn-primary" onclick="openLoginModal('landowner')">Register as Landowner</button></li>
+            <li><button class="btn-outline" onclick="openLoginModal('farmer')">Join as Farmer</button></li>
+        </ul>
+        <div class="hamburger">
+            <i class='bx bx-menu'></i>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="yatra-font">खेत से विश्वास तक <br> <span class="english-title">From Field to Trust</span></h1>
+            <p>Connect with verified farmers, farm managers, and wage workers for remote, transparent farm management.</p>
+            <div class="cta-buttons">
+                <button class="btn-primary btn-large" onclick="openLoginModal('landowner')">Register as Landowner</button>
+                <button class="btn-secondary btn-large" onclick="openLoginModal('farmer')">Join as Farmer</button>
+            </div>
+        </div>
+    </header>
+
+
+    <section class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="flows">
+            <div class="flow-card">
+                <i class='bx bx-landscape'></i>
+                <h3>Landowner</h3>
+                <p>Post farm details, hire verified farmers, monitor remotely via GPS, and release payments safely.</p>
+            </div>
+            <div class="flow-card">
+                <i class='bx bx-user-pin'></i>
+                <h3>Farmer</h3>
+                <p>Browse available land, secure contracts, log daily work via geo-tagged photos, and guarantee your earnings.</p>
+            </div>
+            <div class="flow-card">
+                <i class='bx bx-group'></i>
+                <h3>Wage Worker</h3>
+                <p>Find daily or seasonal gigs, build a trusted profile, and ensure fair pay for honest work.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2>Platform Features</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class='bx bx-map-alt'></i>
+                <h4>GPS Monitoring</h4>
+                <p>Track field activities with real-time location tags and photo updates.</p>
+            </div>
+            <div class="feature-item">
+                <i class='bx bx-file'></i>
+                <h4>Digital Contracts</h4>
+                <p>Easy share-based or fixed-pay agreements structured clearly in local languages.</p>
+            </div>
+            <div class="feature-item">
+                <i class='bx bx-money'></i>
+                <h4>Milestone Payments</h4>
+                <p>Secure milestone-based fund releases tied directly to work validation.</p>
+            </div>
+            <div class="feature-item">
+                <i class='bx bx-shield-quarter'></i>
+                <h4>Dispute Resolution</h4>
+                <p>Neutral mediation system backed by transparent work logs.</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeLoginModal()">&times;</span>
+            <h2 id="modalTitle">Login / Register</h2>
+            <form id="authForm">
+                <input type="hidden" id="authRole" value="landowner">
+                
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label>Full Name</label>
+                    <input type="text" id="authName" placeholder="Enter full name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="authPhone" required placeholder="Enter 10-digit number">
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" required placeholder="Enter password">
+                </div>
+
+                <div class="auth-toggle">
+                    <p id="toggleText">New user? <a href="#" onclick="toggleAuthMode()">Register here</a></p>
+                </div>
+
+                <button type="submit" class="btn-primary btn-full" id="authSubmitBtn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+</html>
